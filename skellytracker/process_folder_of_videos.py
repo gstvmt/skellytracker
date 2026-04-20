@@ -204,6 +204,7 @@ def process_single_video(
         output_video_filepath=annotated_video_path / video_name,
         save_data_bool=False,
     )  # TODO: raise a custom error here if output_array is None?
+    del tracker
     return output_array
 
 
@@ -262,6 +263,26 @@ def get_tracker(tracker_name: str, tracking_params: BaseModel) -> BaseTracker:
             dict_id=tracking_params.charuco_dict_id,
         )
 
+    elif tracker_name == "AprilTagTracker":
+        from skellytracker.trackers.apriltag_tracker.apriltag_tracker import (
+            AprilTagTracker,
+        )
+        from skellytracker.trackers.apriltag_tracker.apriltag_tracking_params import (
+            AprilTagTrackingParams,
+        )
+
+        if not isinstance(tracking_params, AprilTagTrackingParams):
+            raise TypeError(
+                "AprilTagTracker requires AprilTagTrackingParams as tracking_params"
+            )
+        tracker = AprilTagTracker(
+            tag_ids=tuple(tracking_params.tag_ids),
+            point_mode=tracking_params.point_mode,
+            families=tracking_params.families,
+            nthreads=tracking_params.nthreads,
+            quad_decimate=tracking_params.quad_decimate,
+        )
+
     else:
         raise ValueError("Invalid tracker type")
 
@@ -281,6 +302,13 @@ def get_tracker_params(tracker_name: str) -> BaseModel:
         return BaseModel()
     elif tracker_name == "CharucoTracker":
         return CharucoTrackingParams()
+    elif tracker_name == "AprilTagTracker":
+        from skellytracker.trackers.apriltag_tracker.apriltag_tracking_params import (
+            AprilTagTrackingParams,
+        )
+
+        return AprilTagTrackingParams()
+        
     elif tracker_name == "OpenPoseTracker":
         raise ValueError(
             "OpenPoseTracker requires explicitly setting the OpenPose root folder path and output json path, please provide tracking params directly"

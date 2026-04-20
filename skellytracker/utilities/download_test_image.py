@@ -17,8 +17,18 @@ def download_test_image(test_image_url: str = FIGSHARE_TEST_IMAGE_URL) -> np.nda
         r = requests.get(test_image_url, stream=True, timeout=(5, 60))
         r.raise_for_status()  # Check if request was successful
 
+        if not r.content:
+            raise ValueError(
+                f"Empty response body from {test_image_url!r} (status {r.status_code}). "
+                "The URL may have changed or the host returned no data."
+            )
+
         image_array = np.frombuffer(r.content, np.uint8)
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+        if image is None:
+            raise ValueError(
+                f"Could not decode image bytes from {test_image_url!r} (invalid or empty image)."
+            )
 
         logger.info("Test image downloaded successfully.")
         return image
