@@ -23,6 +23,11 @@ try:
 except ModuleNotFoundError:
     print("To use yolo_tracker, install skellytracker[yolo]")
 
+try:
+    from skellytracker.trackers.apriltag_tracker.apriltag_tracker import AprilTagTracker
+except ModuleNotFoundError:
+    print("To use apriltag_tracker, install skellytracker[apriltag]")
+
 
 def main(demo_tracker: str = "mediapipe_holistic_tracker"):
 
@@ -57,6 +62,8 @@ def main(demo_tracker: str = "mediapipe_holistic_tracker"):
         SAMTracker().demo()
     elif demo_tracker == "yolo_object_tracker":
         YOLOObjectTracker(model_size="medium").demo()
+    elif demo_tracker == "apriltag_tracker":
+        AprilTagTracker(tag_ids=(0, 1, 2, 3)).demo()
 
 
 if __name__ == "__main__":
